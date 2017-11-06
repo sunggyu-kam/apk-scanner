@@ -97,7 +97,7 @@ public class PermissionGroupManager
 		if(xmlPermissions != null) {
 			XmlPath groupXPath = xmlPermissions.getNode("/manifest/permission-group[@name='" +  group + "']");
 			if(groupXPath != null) {
-				permGroup.icon = getIconPath(groupXPath.getAttributes("android:icon"));
+				permGroup.icon = groupXPath.getAttributes("android:icon");
 				permGroup.label = getInfoString(groupXPath.getAttributes("android:label"));
 				permGroup.desc = getInfoString(groupXPath.getAttributes("android:description"));
 				if(permGroup.label != null) permGroup.label = permGroup.label.replaceAll("\"", "");
@@ -137,21 +137,5 @@ public class PermissionGroupManager
 		}
 
 		return result;
-	}
-	
-	public String getIconPath(String value)
-	{
-		if(value == null || !value.startsWith("@drawable")) {
-			value = "@drawable/perm_group_unknown";
-		}
-		String path = value.replace("@drawable/", "");
-		
-		if(getClass().getResource("/icons/" + path + ".png") != null) {
-			path = getClass().getResource("/icons/" + path + ".png").toString();
-		} else {
-			//path = getClass().getResource("/icons/perm_group_default.png").toString();
-		}
-		
-		return path;
 	}
 }

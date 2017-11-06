@@ -12,6 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import com.apkscanner.cli.Command;
 import com.apkscanner.core.scanner.AaptScanner;
 import com.apkscanner.core.scanner.ApkScanner;
 import com.apkscanner.gui.MainUI;
@@ -53,8 +54,8 @@ public class Main implements Runnable
 		try {
 			if(args.length > 0) {
 				if(!"p".equals(args[0]) && !"package".equals(args[0])
-						&& "i".equals(args[0]) && "install".equals(args[0])
-						&& "d".equals(args[0]) && "delete-temp-path".equals(args[0])
+						&& !"i".equals(args[0]) && !"install".equals(args[0])
+						&& !"d".equals(args[0]) && !"delete-temp-path".equals(args[0])
 						&& !args[0].startsWith("-") && !args[0].endsWith(".apk") && !args[0].endsWith(".ppk")) {
 					throw new ParseException("Missing argument for option: " + args[0]);
 				}
@@ -140,7 +141,7 @@ public class Main implements Runnable
 			waitAdbServer();
 			apkScanner.openApk(apkFilePath);
 		} else {
-
+			new Command(apkScanner, cmd);
 		}
 	}
 
@@ -226,12 +227,12 @@ public class Main implements Runnable
 		allOptions.addOption(opt);
 		normalOptions.addOption(opt);
 
-		/*
+		
 		opt = new Option( "c", "cli", false, "Prints the result to the command line");
 		allOptions.addOption(opt);
 		targetApkOptions.addOption(opt);
-		targetPackageOptions.addOption(opt);
-
+		//targetPackageOptions.addOption(opt);
+		/*
 		opt = new Option( "g", "gui", false, "Show result by GUI [default]");
 		allOptions.addOption(opt);
 		targetApkOptions.addOption(opt);

@@ -766,7 +766,7 @@ public class BasicInfo extends JComponent implements HyperlinkClickListener, Tab
 		int cnt = 0;
 		for(String key: keys) {
 			PermissionGroup g = permissionGroupManager.getPermGroupMap().get(key);
-			permGroup.append(makeHyperLink("@event", makeImage(g.icon), g.permSummary, g.name, g.hasDangerous?"color:red;":null));
+			permGroup.append(makeHyperLink("@event", makeImage(g.getIconPath()), g.permSummary, g.name, g.hasDangerous?"color:red;":null));
 			if(++cnt % 15 == 0) permGroup.append("<br/>");
 		}
 
@@ -939,7 +939,7 @@ public class BasicInfo extends JComponent implements HyperlinkClickListener, Tab
 		descPane.setEditable(false);
 		descPane.setBackground(label.getBackground());
 		 */
-		showDialog(body.toString(), Resource.STR_BASIC_PERM_DISPLAY_TITLE.getString(), new Dimension(600, 200), new ImageIcon(g.icon.replaceAll("^file:/", "")));
+		showDialog(body.toString(), Resource.STR_BASIC_PERM_DISPLAY_TITLE.getString(), new Dimension(600, 200), new ImageIcon(g.getIconPath().replaceAll("^file:/", "")));
 	}
 
 	public void showSdkVersionInfo(String id)
