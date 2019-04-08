@@ -3,7 +3,7 @@ package com.apkscanner.gui.component.table;
 /**
  * @version 1.0 11/22/98
  */
-public interface CellSpan {
+public interface CellSpan extends CellAttributeMap {
 	public final int ROW    = 0;
 	public final int COLUMN = 1;
 

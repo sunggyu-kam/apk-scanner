@@ -18,7 +18,8 @@ public interface CellAttribute {
 
 	public CellSpan getCellSpan();
 	public CellFont getCellFont();
-	public CellColor getCellColor();
+	public CellColor getCellForgroundColor();
+	public CellColor getCellBackgroudColor();
 }
 /*
  * (swing1.1beta3)
