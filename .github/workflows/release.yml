@@ -1,0 +1,64 @@
+name: APK Scanner
+
+on:
+  push:
+    branches:
+      - release
+
+env:
+  APP_VERSION: 2.14.0
+  FILE_VERSION: v2140_r1_20260221
+
+jobs:
+  build:
+    runs-on: macos-15-intel
+    steps:
+      - name: Setup a NSIS & DPKG Package
+        run: brew install makensis dpkg
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8.0.402+6
+
+      - name: Build - Core
+        run: ./mvnw -f core/pom.xml package
+
+      - name: Build - Plugins
+        run: ./mvnw -f plugin/pom.xml package
+
+      - name: Build - APK Scanner
+        run: ./mvnw package
+
+      - name: Packaging
+        run: target/package.sh
+
+      - name: Upload output - Windows Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
+          path: target/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
+
+      - name: Upload output - Windows Portable
+        uses: actions/upload-artifact@v4
+        with:
+          name: APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
+          path: target/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
+
+      - name: Upload output - Ubuntu Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
+          path: target/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
+
+      - name: Upload output - MacOS Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: APKScanner_${{ env.FILE_VERSION }}_mac.dmg
+          path: target/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
