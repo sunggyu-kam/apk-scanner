@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - release
+  release:
+    types: [created]
 
 env:
   APP_VERSION: 2.14.0
@@ -62,3 +64,24 @@ jobs:
         with:
           name: APKScanner_${{ env.FILE_VERSION }}_mac.dmg
           path: target/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
+
+  upload-to-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
+            artifacts/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
+            artifacts/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
+            artifacts/APKScanner_${{ env.FILE_VERSION }}_mac.dmg/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
