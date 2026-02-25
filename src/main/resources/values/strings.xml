@@ -1,5 +1,20 @@
 <resources>
     <string name="app_name">APK Scanner</string>
+    <string name="app_version">${app.version}</string>
+    <string name="app_mode">${app.mode}</string>
+    <string name="app_build_type">${app.build.type}</string>
+    <string name="app_build_branch">${app.build.branch}</string>
+    <string name="app_build_commit">${app.build.commit}</string>
+    <string name="app_build_date">${app.build.date}</string>
+    <string name="app_build_url">${app.build.url}</string>
+    <string name="app_source_host">${app.source.host}</string>
+    <string name="app_source_repository">${app.source.repository}</string>
+    <string name="app_release_url">${app.release.url}</string>
+
+    <string name="app_members">${app.members}</string>
+    <string name="app_members_url">${app.members.url}</string>
+    <string name="app_contributors">${app.contributors}</string>
+    <string name="app_contributors_url">${app.contributors.url}</string>
 
     <string name="title_install_wizard">APK Install Wizard</string>
     <string name="title_apk_signer">APK Signer</string>

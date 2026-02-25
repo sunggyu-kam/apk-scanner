@@ -13,9 +13,23 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <app.version>2.14</app.version>
+        <app.mode>eng</app.mode> <!-- eng|user -->
+        <app.build.type>revision</app.build.type> <!-- revision|push|tag|release -->
+        <app.build.branch>HEAD</app.build.branch> <!-- HEAD|{branch}|{tag}|{release} -->
+        <app.build.commit>snapshot</app.build.commit> <!-- snapshot|{commit-id}| -->
+        <app.build.date>__FILETIME__</app.build.date> <!-- __FILETIME__|{date} -->
+        <app.build.url></app.build.url>
+        <app.source.host>https://github.com</app.source.host>
+        <app.source.repository>apk-spectrum/apk-scanner</app.source.repository>
+        <app.release.url></app.release.url>
+        <app.members>sunggyu-kam, jacsaldevil</app.members>
+        <app.members.url>https://github.com/orgs/apk-spectrum/people</app.members.url>
+        <app.contributors>ryu-s-r, YorkWaugh</app.contributors>
+        <app.contributors.url>https://github.com/apk-spectrum/apk-scanner/graphs/contributors</app.contributors.url>
     </properties>
     <scm>
-        <url>https://github.com/apk-spectrum/apk-scanner</url>
+        <url>${app.source.host}/${app.source.repository}</url>
     </scm>
     <dependencies>
         <dependency>
@@ -45,13 +59,19 @@
         </dependency>
     </dependencies>
     <build>
+        <finalName>ApkScanner-${app.version}-${app.mode}-${app.build.commit}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
-                    <finalName>ApkScanner</finalName>
                     <archive>
                         <manifest>
                             <mainClass>com.apkscanner.Main</mainClass>
@@ -65,6 +85,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.0</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
                 <executions>
                     <execution>
                         <id>copy-resources</id>

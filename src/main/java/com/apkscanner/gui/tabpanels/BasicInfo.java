@@ -160,9 +160,9 @@ public class BasicInfo extends AbstractTabbedPanel
         apkInfoPanel.setInnerHTMLById("apkscanner-title",
                 RStr.APP_NAME.get() + " " + RStr.APP_VERSION.get());
         apkInfoPanel.setOuterHTMLById("programmer-email",
-                String.format("<a href=\"mailto:%s\" title=\"%s\">%s</a>",
-                        RStr.APP_MAKER_EMAIL.get(), RStr.APP_MAKER_EMAIL.get(),
-                        RStr.APP_MAKER.get()));
+                String.format("<a href=\"%s\" title=\"%s\">%s</a>",
+                        RStr.APP_MEMBERS_URL.get(), RStr.APP_MEMBERS_URL.get(),
+                        RStr.APP_MEMBERS.get()));
         if (!SystemUtil.hasShortCut(exePath, RStr.APP_NAME.get())) {
             apkInfoPanel.insertElementLast("apkscanner-icon-td",
                     String.format("<div id=\"create-shortcut\" class=\"div-button\">%s</div>",

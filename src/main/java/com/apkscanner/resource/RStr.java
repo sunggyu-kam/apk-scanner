@@ -6,10 +6,21 @@ import com.apkspectrum.resource.ResString;
 
 public enum RStr implements ResString<String> {
     APP_NAME                        ("@app_name"),
-    APP_VERSION                     ("2.14"),
-    APP_BUILD_MODE                  ("eng"),
-    APP_MAKER                       ("Jinhyeong Lee / Sunggyu Kam"),
-    APP_MAKER_EMAIL                 ("jacsaldevil@gmail.com;sunggyu.kam@gmail.com"),
+    APP_VERSION                     ("@app_version"),
+    APP_MODE                        ("@app_mode"),
+    APP_BUILD_TYPE                  ("@app_build_type"),
+    APP_BUILD_BRANCH                ("@app_build_branch"),
+    APP_BUILD_COMMIT                ("@app_build_commit"),
+    APP_BUILD_DATE                  ("@app_build_date"),
+    APP_BUILD_URL                   ("@app_build_url"),
+    APP_SOURCE_HOST                 ("@app_source_host"),
+    APP_SOURCE_REPOSITORY           ("@app_source_repository"),
+    APP_RELEASE_URL                 ("@app_release_url"),
+
+    APP_MEMBERS                     ("@app_members"),
+    APP_MEMBERS_URL                 ("@app_members_url"),
+    APP_CONTRIBUTORS                ("@app_contributors"),
+    APP_CONTRIBUTORS_URL            ("@app_contributors_url"),
 
     TITLE_INSTALL_WIZARD            ("@title_install_wizard"),
     TITLE_APK_SIGNER                ("@title_apk_signer"),
