@@ -25,6 +25,11 @@ fi
 else
 RELEASE_DIR=$(dirname $(readlink -f $0))
 fi
+
+if [ ! -x "${RELEASE_DIR}/ApkScanner.jar" ]; then
+cp ${RELEASE_DIR}/ApkScanner-*.jar ${RELEASE_DIR}/ApkScanner.jar
+fi
+
 DEBIAN_PATH="${RELEASE_DIR}/debian"
 DEBIAN_DATA_PATH="${DEBIAN_PATH}${APP_PATH}"
 DEBIAN_CTRL_PATH="${DEBIAN_PATH}/DEBIAN"
@@ -41,7 +46,7 @@ rm -rf "${DEBIAN_PATH}"
 ##############################
 mkdir -p "${DEBIAN_DATA_PATH}"
 cp -f "${RELEASE_DIR}/${APP_FILE}" "${DEBIAN_DATA_PATH}"
-cp -f "${RELEASE_DIR}/../src/main/resources/icons/AppIcon.png" "${DEBIAN_DATA_PATH}"
+cp -f "${RELEASE_DIR}/classes/icons/AppIcon.png" "${DEBIAN_DATA_PATH}"
 cp -rf "${RELEASE_DIR}/data" "${DEBIAN_DATA_PATH}"
 cp -rf "${RELEASE_DIR}/lib" "${DEBIAN_DATA_PATH}"
 if [ -e "${RELEASE_DIR}/plugin" ]; then

@@ -27,6 +27,11 @@ export RELEASE_DIR=`dirname "$0"`
 if [[ $RELEASE_DIR != '/'* ]]; then
 export RELEASE_DIR=`pwd`/${RELEASE_DIR}
 fi
+
+if [ ! -x "${RELEASE_DIR}/ApkScanner.jar" ]; then
+cp ${RELEASE_DIR}/ApkScanner-*.jar ${RELEASE_DIR}/ApkScanner.jar
+fi
+
 export APP_DIR_NAME="APK Scanner.app"
 
 mkdir -p "${RELEASE_DIR}/plugin"

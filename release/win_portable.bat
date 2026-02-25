@@ -13,6 +13,10 @@ set OUT_DIR="%RELEASE_DIR%\portable"
 
 echo RELEASE_DIR : %RELEASE_DIR%
 
+if not exist "%RELEASE_DIR%\ApkScanner.jar" (
+    copy "%RELEASE_DIR%\ApkScanner-*.jar" "%RELEASE_DIR%\ApkScanner.jar"
+)
+
 if not exist "%RELEASE_DIR%\plugin" (
     echo Create folder : "%RELEASE_DIR%\plugin"
     mkdir "%RELEASE_DIR%\plugin"

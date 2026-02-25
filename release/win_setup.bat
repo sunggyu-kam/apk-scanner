@@ -19,6 +19,10 @@ set RELEASE_DIR=%~dp0.
 
 echo RELEASE_DIR : %RELEASE_DIR%
 
+if not exist "%RELEASE_DIR%\ApkScanner.jar" (
+    copy "%RELEASE_DIR%\ApkScanner-*.jar" "%RELEASE_DIR%\ApkScanner.jar"
+)
+
 set NSIS_OPTS=/INPUTCHARSET UTF8
 if not "%APP_VERSION%" == "" (
 set NSIS_OPTS=%NSIS_OPTS% /DAPP_VERSION=%APP_VERSION%

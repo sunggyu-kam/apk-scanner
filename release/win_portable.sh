@@ -15,6 +15,10 @@ fi
 
 echo RELEASE_DIR : ${RELEASE_DIR}
 
+if [ ! -x "${RELEASE_DIR}/ApkScanner.jar" ]; then
+cp ${RELEASE_DIR}/ApkScanner-*.jar ${RELEASE_DIR}/ApkScanner.jar
+fi
+
 OUT_DIR="${RELEASE_DIR}/portable"
 
 mkdir -p "${RELEASE_DIR}/plugin"

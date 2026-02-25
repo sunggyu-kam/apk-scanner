@@ -3,7 +3,9 @@ name: APK Scanner
 on:
   push:
     branches:
-      - release
+      - '**'
+    tags:
+      - '**'
   release:
     types: [created]
 
@@ -13,21 +15,18 @@ env:
 
 jobs:
   build:
-    runs-on: macos-15-intel
+    runs-on: ubuntu-latest
     steps:
-      - name: Setup a NSIS & DPKG Package
-        run: brew install makensis dpkg
-
-      - name: Check out repository code
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-
       - name: Set up JDK 1.8
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 8.0.402+6
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
 
       - name: Build - Core
         run: ./mvnw -f core/pom.xml package
@@ -37,6 +36,34 @@ jobs:
 
       - name: Build - APK Scanner
         run: ./mvnw package
+
+      - name: Create tarball with preserved permissions
+        run: tar -czf target.tar.gz target
+
+      - name: Upload output
+        uses: actions/upload-artifact@v4
+        with:
+          name: target
+          path: target.tar.gz
+
+  packaging-installer:
+    needs: build
+    runs-on: macos-15-intel
+    if: |
+      github.event_name == 'release' || 
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || 
+      (github.event_name == 'push' && github.ref == 'refs/heads/release')
+    steps:
+      - name: Setup a NSIS & DPKG Package
+        run: brew install makensis dpkg
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: .
+
+      - name: Extract tarball with preserved permissions
+        run: tar -xzvf ./target/target.tar.gz
 
       - name: Packaging
         run: target/package.sh
@@ -66,22 +93,22 @@ jobs:
           path: target/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
 
   upload-to-release:
-    needs: build
+    needs: packaging-installer
     runs-on: ubuntu-latest
     if: github.event_name == 'release'
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          path: artifacts
+          path: .
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
-            artifacts/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
-            artifacts/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
-            artifacts/APKScanner_${{ env.FILE_VERSION }}_mac.dmg/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
+            ./APKScanner_${{ env.FILE_VERSION }}_win_setup.exe/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
+            ./APKScanner_${{ env.FILE_VERSION }}_win_portable.zip/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
+            ./APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
+            ./APKScanner_${{ env.FILE_VERSION }}_mac.dmg/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
