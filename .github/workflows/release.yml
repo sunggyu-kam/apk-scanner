@@ -23,6 +23,10 @@ jobs:
       build_type: ${{ steps.extract.outputs.build_type }}
       build_mode: ${{ steps.extract.outputs.build_mode }}
       file_version: ${{ steps.extract.outputs.file_version }}
+      app_members: ${{ steps.repo_info.outputs.app_members }}
+      app_members_url: ${{ steps.repo_info.outputs.app_members_url }}
+      app_contributors: ${{ steps.repo_info.outputs.app_contributors }}
+      app_contributors_url: ${{ steps.repo_info.outputs.app_contributors_url }}
     steps:
       - name: Get build ID and URL
         run: |
@@ -54,13 +58,13 @@ jobs:
           else
             echo "Unknown ref type"
           fi
-          
+
           # Determine build type
           if [[ $GITHUB_EVENT_NAME == release ]]; then
             build_type="release"
             echo "Build type: $build_type"
             echo "build_type=$build_type" >> $GITHUB_OUTPUT
-            
+
             # Release URL for release events
             release_url=$(jq -r '.release.html_url' "$GITHUB_EVENT_PATH")
             echo "Release URL: $release_url"
@@ -74,7 +78,7 @@ jobs:
             echo "Build type: $build_type"
             echo "build_type=$build_type" >> $GITHUB_OUTPUT
           fi
-          
+
           # Determine build mode
           if [[ $GITHUB_EVENT_NAME == release ]] || [[ $GITHUB_REF == refs/heads/release ]] || [[ $GITHUB_REF == refs/tags/* ]]; then
             build_mode="user"
@@ -85,7 +89,7 @@ jobs:
             echo "Build mode: $build_mode"
             echo "build_mode=$build_mode" >> $GITHUB_OUTPUT
           fi
-          
+
           # Determine file version
           date=$(date -u +"%Y%m%d")
           short_commit_id=${GITHUB_SHA:0:7}
@@ -118,6 +122,76 @@ jobs:
             echo "file_version=$file_version" >> $GITHUB_OUTPUT
           fi
 
+      - name: Extract repository information
+        id: repo_info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Extract repository owner and name
+          repo_owner=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f1)
+          repo_name=$(echo "$GITHUB_REPOSITORY" | cut -d'/' -f2)
+
+          # Get owner type (User or Organization) with error handling
+          owner_type=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "https://api.github.com/orgs/$repo_owner" | jq -r '.type // empty')
+
+          # Try to get organization members if owner is an organization
+          if [[ "$owner_type" == "Organization" ]]; then
+            org_members=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/orgs/$repo_owner/members?per_page=100" 2>/dev/null)
+            # Check if the response is valid JSON and contains members
+            if echo "$org_members" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1; then
+              # Extract member logins and join with commas
+              app_members=$(echo "$org_members" | jq -r '[.[].login] | join(",")')
+              app_members_url="https://github.com/orgs/$repo_owner/people"
+            fi
+          fi
+
+          # If app_members is still empty, set owner as member
+          if [[ -z "$app_members" ]]; then
+            app_members="$repo_owner"
+            if [[ "$owner_type" == "Organization" ]]; then
+              app_members_url="https://github.com/orgs/$repo_owner/people"
+            else
+              app_members_url="https://github.com/$repo_owner"
+            fi
+          fi
+
+          # Extract contributors
+          contributors=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/contributors?per_page=100" 2>/dev/null)
+          # Check if the response is valid JSON and contains contributors
+          if echo "$contributors" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1; then
+            # Extract contributor logins and join with commas
+            app_contributors=$(echo "$contributors" | jq -r 'map(select(.type == "User")) | map(.login) | join(",")')
+            app_contributors_url="https://github.com/$GITHUB_REPOSITORY/graphs/contributors"
+          fi
+
+          if [[ -z "$app_contributors" ]]; then
+            app_contributors=$app_members
+            app_contributors_url=$app_members_url
+          fi
+
+          # Output information
+          echo "Repository owner: $repo_owner"
+          echo "Repository name: $repo_name"
+          echo "Owner type: $owner_type"
+          if [[ "$owner_type" == "Organization" ]]; then
+            echo "Repository is owned by an organization: $repo_owner"
+          else
+            echo "Repository is owned by a user: $repo_owner"
+          fi
+          echo "App members: $app_members"
+          echo "App members URL: $app_members_url"
+          echo "App contributors: $app_contributors"
+          echo "App contributors URL: $app_contributors_url"
+
+          # Set outputs
+          echo "app_members=$app_members" >> $GITHUB_OUTPUT
+          echo "app_members_url=$app_members_url" >> $GITHUB_OUTPUT
+          echo "app_contributors=$app_contributors" >> $GITHUB_OUTPUT
+          echo "app_contributors_url=$app_contributors_url" >> $GITHUB_OUTPUT
+
   build:
     runs-on: ubuntu-latest
     needs: build-var
@@ -129,6 +203,10 @@ jobs:
       BUILD_TYPE: ${{ needs.build-var.outputs.build_type }}
       BUILD_MODE: ${{ needs.build-var.outputs.build_mode }}
       FILE_VERSION: ${{ needs.build-var.outputs.file_version }}
+      APP_MEMBERS: ${{ needs.build-var.outputs.app_members }}
+      APP_MEMBERS_URL: ${{ needs.build-var.outputs.app_members_url }}
+      APP_CONTRIBUTORS: ${{ needs.build-var.outputs.app_contributors }}
+      APP_CONTRIBUTORS_URL: ${{ needs.build-var.outputs.app_contributors_url }}
     steps:
       - name: Set up JDK 1.8
         uses: actions/setup-java@v4
@@ -160,10 +238,10 @@ jobs:
           -Dapp.source.host="$GITHUB_SERVER_URL"
           -Dapp.source.repository="$GITHUB_REPOSITORY"
           -Dapp.release.url="${{ env.RELEASE_URL }}"
-          -Dapp.members=""
-          -Dapp.members.url=""
-          -Dapp.contributors=""
-          -Dapp.contributors.url=""
+          -Dapp.members="${{ env.APP_MEMBERS }}"
+          -Dapp.members.url="${{ env.APP_MEMBERS_URL }}"
+          -Dapp.contributors="${{ env.APP_CONTRIBUTORS }}"
+          -Dapp.contributors.url="${{ env.APP_CONTRIBUTORS_URL }}"
       - name: Create tarball with preserved permissions
         run: tar -czf target.tar.gz target
 
@@ -177,8 +255,8 @@ jobs:
     needs: [build-var, build]
     runs-on: macos-15-intel
     if: |
-      github.event_name == 'release' || 
-      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || 
+      github.event_name == 'release' ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) ||
       (github.event_name == 'push' && github.ref == 'refs/heads/release')
     env:
       FILE_VERSION: ${{ needs.build-var.outputs.file_version }}
