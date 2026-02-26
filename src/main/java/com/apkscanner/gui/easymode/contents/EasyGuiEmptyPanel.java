@@ -24,7 +24,7 @@ public class EasyGuiEmptyPanel extends FlatPanel {
         JLabel scannertext = new JLabel(RStr.APP_NAME.get() + " " + RStr.APP_VERSION.get());
         scannertext.setFont(new Font(getFont().getName(), Font.BOLD, 30));
 
-        JLabel makertext = new JLabel("Programmed by " + RStr.APP_MAKER_EMAIL.get() + ", 2015.");
+        JLabel makertext = new JLabel("Programmed by " + RStr.APP_MEMBERS_URL.get() + ", 2015.");
         makertext.setFont(new Font(getFont().getName(), Font.BOLD, 10));
 
 
@@ -33,8 +33,8 @@ public class EasyGuiEmptyPanel extends FlatPanel {
         strTabInfo.append("  <H1>" + RStr.APP_NAME.get() + " " + RStr.APP_VERSION.get() + "</H1>");
         // strTabInfo.append(" <H3>Using following tools</H3></div>");
         strTabInfo.append("  <br/><br/>");
-        strTabInfo.append("  Programmed by <a href=\"mailto:" + RStr.APP_MAKER_EMAIL.get()
-                + "\" title=\"" + RStr.APP_MAKER_EMAIL.get() + "\">" + RStr.APP_MAKER.get()
+        strTabInfo.append("  Programmed by <a href=\"" + RStr.APP_MEMBERS_URL.get()
+                + "\" title=\"" + RStr.APP_MEMBERS_URL.get() + "\">" + RStr.APP_MEMBERS.get()
                 + "</a>, 2015.<br/>");
         strTabInfo.append(
                 "  It is open source project on <a href=\"https://github.sec.samsung.net/sunggyu-kam/apk-scanner\" title=\"APK Scanner Site\">SEC Github</a></html>");

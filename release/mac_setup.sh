@@ -27,11 +27,20 @@ export RELEASE_DIR=`dirname "$0"`
 if [[ $RELEASE_DIR != '/'* ]]; then
 export RELEASE_DIR=`pwd`/${RELEASE_DIR}
 fi
+
+if [ ! -x "${RELEASE_DIR}/ApkScanner.jar" ]; then
+cp ${RELEASE_DIR}/ApkScanner-*.jar ${RELEASE_DIR}/ApkScanner.jar
+fi
+
 export APP_DIR_NAME="APK Scanner.app"
 
 mkdir -p "${RELEASE_DIR}/plugin"
 
 echo JAVA_HOME : $JAVA_HOME
+if [ -z "$JAVA_HOME" ]; then
+JAVA_HOME=`/usr/libexec/java_home -v 1.8`
+echo JAVA_HOME_1.8 : $JAVA_HOME
+fi
 
 if [ -x "$JAVA_HOME/bin/javapackager" ]; then
 # Lecacy approach using javapackager (deprecated in Java 11 and removed in Java 14)

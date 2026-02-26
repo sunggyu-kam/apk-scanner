@@ -22,6 +22,10 @@ fi
 
 echo RELEASE_DIR : ${RELEASE_DIR}
 
+if [ ! -x "${RELEASE_DIR}/ApkScanner.jar" ]; then
+cp ${RELEASE_DIR}/ApkScanner-*.jar ${RELEASE_DIR}/ApkScanner.jar
+fi
+
 if [ -n "${APP_VERSION}" ]; then
 NSIS_OPTS="-DAPP_VERSION=${APP_VERSION}"
 fi

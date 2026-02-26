@@ -33,11 +33,20 @@ public class Main {
 
     static public void main(final String[] args) {
         RStr.setLanguage(RProp.S.LANGUAGE.get());
-        if ("user".equalsIgnoreCase(RStr.APP_BUILD_MODE.get())) {
+        if ("user".equalsIgnoreCase(RStr.APP_MODE.get())) {
             Log.enableConsoleLog(false);
         }
 
-        Log.i(RStr.APP_NAME + " " + RStr.APP_VERSION + " " + RStr.APP_BUILD_MODE);
+        Log.i(RStr.APP_NAME + " " + RStr.APP_VERSION + " " + RStr.APP_MODE);
+        Log.i(RStr.APP_BUILD_TYPE + " " + RStr.APP_BUILD_BRANCH + " " + RStr.APP_BUILD_COMMIT);
+        Log.i("BUILD DATE : " + RStr.APP_BUILD_DATE);
+        Log.i("BUILD URL : " + RStr.APP_BUILD_URL);
+        Log.i("RELEASE URL : " + RStr.APP_RELEASE_URL);
+        Log.i("REPOSITORY : " + RStr.APP_SOURCE_HOST + "/" + RStr.APP_SOURCE_REPOSITORY);
+        Log.i("MEMBERS : " + RStr.APP_MEMBERS);
+        Log.i("MEMBERS_URL : " + RStr.APP_MEMBERS_URL);
+        Log.i("CONTRIBUTORS : " + RStr.APP_CONTRIBUTORS);
+        Log.i("CONTRIBUTORS_URL : " + RStr.APP_CONTRIBUTORS_URL);
         Log.i("OS : " + SystemUtil.OS);
         Log.i("java.version : " + System.getProperty("java.version"));
         Log.i("java.specification.version : " + System.getProperty("java.specification.version"));
@@ -261,7 +270,7 @@ public class Main {
         systemOut.println(
                 "with Android debug bridge (http://developer.android.com/tools/help/adb.html)");
         systemOut.println(
-                "Programmed by " + RStr.APP_MAKER + " <" + RStr.APP_MAKER_EMAIL + ">" + ", 2015");
+                "Programmed by " + RStr.APP_MEMBERS + " <" + RStr.APP_MEMBERS_URL + ">" + ", 2015");
         systemOut.println("Apache License 2.0 (http://www.apache.org/licenses/LICENSE-2.0)");
         systemOut.println();
 

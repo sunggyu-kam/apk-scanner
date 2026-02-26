@@ -14,6 +14,10 @@ fi
 
 echo RELEASE_DIR : ${RELEASE_DIR}
 
+if [ ! -x "${RELEASE_DIR}/ApkScanner.jar" ]; then
+cp ${RELEASE_DIR}/ApkScanner-*.jar ${RELEASE_DIR}/ApkScanner.jar
+fi
+
 if [[ -n `which makensis` ]]; then
 "${RELEASE_DIR}/win_setup.sh"
 fi

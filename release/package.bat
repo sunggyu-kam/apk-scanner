@@ -10,6 +10,10 @@ if not "%2" == "" ( set FILE_VERSION=%2 )
 set RELEASE_DIR=%~dp0.
 echo RELEASE_DIR : %RELEASE_DIR%
 
+if not exist "%RELEASE_DIR%\ApkScanner.jar" (
+    copy "%RELEASE_DIR%\ApkScanner-*.jar" "%RELEASE_DIR%\ApkScanner.jar"
+)
+
 if not "%APP_VERSION%" == "" ( echo APP_VERSION : %APP_VERSION% )
 if not "%FILE_VERSION%" == "" ( echo FILE_VERSION : %FILE_VERSION% )
 
