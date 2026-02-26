@@ -133,17 +133,17 @@ jobs:
 
           # Get owner type (User or Organization) with error handling
           owner_type=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-            "https://api.github.com/orgs/$repo_owner" | jq -r '.type // empty')
+            "$GITHUB_API_URL/orgs/$repo_owner" | jq -r '.type // empty')
 
           # Try to get organization members if owner is an organization
           if [[ "$owner_type" == "Organization" ]]; then
             org_members=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/orgs/$repo_owner/members?per_page=100" 2>/dev/null)
+              "$GITHUB_API_URL/orgs/$repo_owner/members?per_page=100" 2>/dev/null)
             # Check if the response is valid JSON and contains members
             if echo "$org_members" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1; then
               # Extract member logins and join with commas
               app_members=$(echo "$org_members" | jq -r '[.[].login] | join(",")')
-              app_members_url="https://github.com/orgs/$repo_owner/people"
+              app_members_url="$GITHUB_SERVER_URL/orgs/$repo_owner/people"
             fi
           fi
 
@@ -151,20 +151,20 @@ jobs:
           if [[ -z "$app_members" ]]; then
             app_members="$repo_owner"
             if [[ "$owner_type" == "Organization" ]]; then
-              app_members_url="https://github.com/orgs/$repo_owner/people"
+              app_members_url="$GITHUB_SERVER_URL/orgs/$repo_owner/people"
             else
-              app_members_url="https://github.com/$repo_owner"
+              app_members_url="$GITHUB_SERVER_URL/$repo_owner"
             fi
           fi
 
           # Extract contributors
           contributors=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/contributors?per_page=100" 2>/dev/null)
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/contributors?per_page=100" 2>/dev/null)
           # Check if the response is valid JSON and contains contributors
           if echo "$contributors" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1; then
             # Extract contributor logins and join with commas
             app_contributors=$(echo "$contributors" | jq -r 'map(select(.type == "User")) | map(.login) | join(",")')
-            app_contributors_url="https://github.com/$GITHUB_REPOSITORY/graphs/contributors"
+            app_contributors_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/graphs/contributors"
           fi
 
           if [[ -z "$app_contributors" ]]; then
