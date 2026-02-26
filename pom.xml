@@ -16,7 +16,7 @@
         <app.version>2.14</app.version>
         <app.mode>eng</app.mode> <!-- eng|user -->
         <app.build.type>revision</app.build.type> <!-- revision|push|tag|release -->
-        <app.build.branch>HEAD</app.build.branch> <!-- HEAD|{branch}|{tag}|{release} -->
+        <app.build.branch>HEAD</app.build.branch> <!-- HEAD|{branch}|{tag} -->
         <app.build.commit>snapshot</app.build.commit> <!-- snapshot|{commit-id}| -->
         <app.build.date>__FILETIME__</app.build.date> <!-- __FILETIME__|{date} -->
         <app.build.url></app.build.url>

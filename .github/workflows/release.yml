@@ -11,11 +11,124 @@ on:
 
 env:
   APP_VERSION: 2.14.0
-  FILE_VERSION: v2140_r1_20260221
 
 jobs:
+  build-var:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.extract.outputs.tag_name }}
+      branch_name: ${{ steps.extract.outputs.branch_name }}
+      build_date: ${{ steps.setdate.outputs.build_date }}
+      release_url: ${{ steps.extract.outputs.release_url }}
+      build_type: ${{ steps.extract.outputs.build_type }}
+      build_mode: ${{ steps.extract.outputs.build_mode }}
+      file_version: ${{ steps.extract.outputs.file_version }}
+    steps:
+      - name: Get build ID and URL
+        run: |
+          echo "Build ID: $GITHUB_RUN_ID"
+          echo "Server URL: $GITHUB_SERVER_URL"
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Build URL: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+      - name: Set build date
+        id: setdate
+        run: |
+          build_date=$(date -u +"%Y-%m-%d %H:%M:%S")
+          echo "Build date: $build_date"
+          echo "build_date=$build_date" >> $GITHUB_OUTPUT
+
+      - name: Extract branch or tag name and commit ID
+        id: extract
+        run: |
+          echo "Full ref: $GITHUB_REF"
+          echo "Commit ID: $GITHUB_SHA"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            tag_name=${GITHUB_REF#refs/tags/}
+            echo "Tag name: $tag_name"
+            echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+          elif [[ $GITHUB_REF == refs/heads/* ]]; then
+            branch_name=${GITHUB_REF#refs/heads/}
+            echo "Branch name: $branch_name"
+            echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
+          else
+            echo "Unknown ref type"
+          fi
+          
+          # Determine build type
+          if [[ $GITHUB_EVENT_NAME == release ]]; then
+            build_type="release"
+            echo "Build type: $build_type"
+            echo "build_type=$build_type" >> $GITHUB_OUTPUT
+            
+            # Release URL for release events
+            release_url=$(jq -r '.release.html_url' "$GITHUB_EVENT_PATH")
+            echo "Release URL: $release_url"
+            echo "release_url=$release_url" >> $GITHUB_OUTPUT
+          elif [[ $GITHUB_REF == refs/tags/* ]]; then
+            build_type="tag"
+            echo "Build type: $build_type"
+            echo "build_type=$build_type" >> $GITHUB_OUTPUT
+          else
+            build_type="push"
+            echo "Build type: $build_type"
+            echo "build_type=$build_type" >> $GITHUB_OUTPUT
+          fi
+          
+          # Determine build mode
+          if [[ $GITHUB_EVENT_NAME == release ]] || [[ $GITHUB_REF == refs/heads/release ]] || [[ $GITHUB_REF == refs/tags/* ]]; then
+            build_mode="user"
+            echo "Build mode: $build_mode"
+            echo "build_mode=$build_mode" >> $GITHUB_OUTPUT
+          else
+            build_mode="eng"
+            echo "Build mode: $build_mode"
+            echo "build_mode=$build_mode" >> $GITHUB_OUTPUT
+          fi
+          
+          # Determine file version
+          date=$(date -u +"%Y%m%d")
+          short_commit_id=${GITHUB_SHA:0:7}
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            # Tag event
+            if [[ $tag_name == *"$APP_VERSION"* ]]; then
+              # Tag contains APP_VERSION
+              if [[ $GITHUB_EVENT_NAME == release ]]; then
+                file_version="${tag_name}_${date}"
+              else
+                file_version="${tag_name}.tag_${date}"
+              fi
+              echo "File version: $file_version"
+              echo "file_version=$file_version" >> $GITHUB_OUTPUT
+            else
+              # Tag does not contain APP_VERSION
+              file_version="v${APP_VERSION}_${tag_name}.tag_${date}"
+              echo "File version: $file_version"
+              echo "file_version=$file_version" >> $GITHUB_OUTPUT
+            fi
+          elif [[ $GITHUB_REF == refs/heads/release ]]; then
+            # Release branch
+            file_version="v${APP_VERSION}_RC-${short_commit_id}_${date}"
+            echo "File version: $file_version"
+            echo "file_version=$file_version" >> $GITHUB_OUTPUT
+          else
+            # Other branches
+            file_version="v${APP_VERSION}_${branch_name}-${short_commit_id}_${date}"
+            echo "File version: $file_version"
+            echo "file_version=$file_version" >> $GITHUB_OUTPUT
+          fi
+
   build:
     runs-on: ubuntu-latest
+    needs: build-var
+    env:
+      TAG_NAME: ${{ needs.build-var.outputs.tag_name }}
+      BRANCH_NAME: ${{ needs.build-var.outputs.branch_name }}
+      BUILD_DATE: ${{ needs.build-var.outputs.build_date }}
+      RELEASE_URL: ${{ needs.build-var.outputs.release_url }}
+      BUILD_TYPE: ${{ needs.build-var.outputs.build_type }}
+      BUILD_MODE: ${{ needs.build-var.outputs.build_mode }}
+      FILE_VERSION: ${{ needs.build-var.outputs.file_version }}
     steps:
       - name: Set up JDK 1.8
         uses: actions/setup-java@v4
@@ -36,7 +149,21 @@ jobs:
 
       - name: Build - APK Scanner
         run: ./mvnw package
-
+          -Dapp.version="${{ env.APP_VERSION }}"
+          -Dapp.mode="${{ env.BUILD_MODE }}"
+          -Dapp.build.type="${{ env.BUILD_TYPE }}"
+          -Dapp.build.branch="${{ env.BRANCH_NAME }}${{ env.TAG_NAME }}"
+          -Dapp.build.commit="$GITHUB_SHA"
+          -Dapp.build.id="$GITHUB_RUN_ID"
+          -Dapp.build.date="${{ env.BUILD_DATE }}"
+          -Dapp.build.url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          -Dapp.source.host="$GITHUB_SERVER_URL"
+          -Dapp.source.repository="$GITHUB_REPOSITORY"
+          -Dapp.release.url="${{ env.RELEASE_URL }}"
+          -Dapp.members=""
+          -Dapp.members.url=""
+          -Dapp.contributors=""
+          -Dapp.contributors.url=""
       - name: Create tarball with preserved permissions
         run: tar -czf target.tar.gz target
 
@@ -47,12 +174,14 @@ jobs:
           path: target.tar.gz
 
   packaging-installer:
-    needs: build
+    needs: [build-var, build]
     runs-on: macos-15-intel
     if: |
       github.event_name == 'release' || 
       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || 
       (github.event_name == 'push' && github.ref == 'refs/heads/release')
+    env:
+      FILE_VERSION: ${{ needs.build-var.outputs.file_version }}
     steps:
       - name: Setup a NSIS & DPKG Package
         run: brew install makensis dpkg
@@ -93,9 +222,11 @@ jobs:
           path: target/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
 
   upload-to-release:
-    needs: packaging-installer
+    needs: [build-var, packaging-installer]
     runs-on: ubuntu-latest
     if: github.event_name == 'release'
+    env:
+      FILE_VERSION: ${{ needs.build-var.outputs.file_version }}
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4

@@ -42,11 +42,11 @@ public class Main {
         Log.i("BUILD DATE : " + RStr.APP_BUILD_DATE);
         Log.i("BUILD URL : " + RStr.APP_BUILD_URL);
         Log.i("RELEASE URL : " + RStr.APP_RELEASE_URL);
-        Log.i(RStr.APP_SOURCE_HOST + "/" + RStr.APP_SOURCE_REPOSITORY);
-        Log.i(RStr.APP_MEMBERS);
-        Log.i(RStr.APP_MEMBERS_URL);
-        Log.i(RStr.APP_CONTRIBUTORS);
-        Log.i(RStr.APP_CONTRIBUTORS_URL);
+        Log.i("REPOSITORY : " + RStr.APP_SOURCE_HOST + "/" + RStr.APP_SOURCE_REPOSITORY);
+        Log.i("MEMBERS : " + RStr.APP_MEMBERS);
+        Log.i("MEMBERS_URL : " + RStr.APP_MEMBERS_URL);
+        Log.i("CONTRIBUTORS : " + RStr.APP_CONTRIBUTORS);
+        Log.i("CONTRIBUTORS_URL : " + RStr.APP_CONTRIBUTORS_URL);
         Log.i("OS : " + SystemUtil.OS);
         Log.i("java.version : " + System.getProperty("java.version"));
         Log.i("java.specification.version : " + System.getProperty("java.specification.version"));
