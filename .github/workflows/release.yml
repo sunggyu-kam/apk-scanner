@@ -62,8 +62,6 @@ jobs:
           # Determine build type
           if [[ $GITHUB_EVENT_NAME == release ]]; then
             build_type="release"
-            echo "Build type: $build_type"
-            echo "build_type=$build_type" >> $GITHUB_OUTPUT
 
             # Release URL for release events
             release_url=$(jq -r '.release.html_url' "$GITHUB_EVENT_PATH")
@@ -71,24 +69,20 @@ jobs:
             echo "release_url=$release_url" >> $GITHUB_OUTPUT
           elif [[ $GITHUB_REF == refs/tags/* ]]; then
             build_type="tag"
-            echo "Build type: $build_type"
-            echo "build_type=$build_type" >> $GITHUB_OUTPUT
           else
             build_type="push"
-            echo "Build type: $build_type"
-            echo "build_type=$build_type" >> $GITHUB_OUTPUT
           fi
+          echo "Build type: $build_type"
+          echo "build_type=$build_type" >> $GITHUB_OUTPUT
 
           # Determine build mode
           if [[ $GITHUB_EVENT_NAME == release ]] || [[ $GITHUB_REF == refs/heads/release ]] || [[ $GITHUB_REF == refs/tags/* ]]; then
             build_mode="user"
-            echo "Build mode: $build_mode"
-            echo "build_mode=$build_mode" >> $GITHUB_OUTPUT
           else
             build_mode="eng"
-            echo "Build mode: $build_mode"
-            echo "build_mode=$build_mode" >> $GITHUB_OUTPUT
           fi
+          echo "Build mode: $build_mode"
+          echo "build_mode=$build_mode" >> $GITHUB_OUTPUT
 
           # Determine file version
           date=$(date -u +"%Y%m%d")
@@ -102,25 +96,19 @@ jobs:
               else
                 file_version="${tag_name}.tag_${date}"
               fi
-              echo "File version: $file_version"
-              echo "file_version=$file_version" >> $GITHUB_OUTPUT
             else
               # Tag does not contain APP_VERSION
               file_version="v${APP_VERSION}_${tag_name}.tag_${date}"
-              echo "File version: $file_version"
-              echo "file_version=$file_version" >> $GITHUB_OUTPUT
             fi
           elif [[ $GITHUB_REF == refs/heads/release ]]; then
             # Release branch
             file_version="v${APP_VERSION}_RC-${short_commit_id}_${date}"
-            echo "File version: $file_version"
-            echo "file_version=$file_version" >> $GITHUB_OUTPUT
           else
             # Other branches
             file_version="v${APP_VERSION}_${branch_name}-${short_commit_id}_${date}"
-            echo "File version: $file_version"
-            echo "file_version=$file_version" >> $GITHUB_OUTPUT
           fi
+          echo "File version: $file_version"
+          echo "file_version=$file_version" >> $GITHUB_OUTPUT
 
       - name: Extract repository information
         id: repo_info
