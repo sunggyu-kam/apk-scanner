@@ -197,13 +197,13 @@ jobs:
       APP_CONTRIBUTORS_URL: ${{ needs.build-var.outputs.app_contributors_url }}
     steps:
       - name: Set up JDK 1.8
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 8.0.402+6
 
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: 'recursive'
 
@@ -230,11 +230,12 @@ jobs:
           -Dapp.members.url="${{ env.APP_MEMBERS_URL }}"
           -Dapp.contributors="${{ env.APP_CONTRIBUTORS }}"
           -Dapp.contributors.url="${{ env.APP_CONTRIBUTORS_URL }}"
+
       - name: Create tarball with preserved permissions
         run: tar -czf target.tar.gz target
 
       - name: Upload output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: target
           path: target.tar.gz
@@ -253,36 +254,36 @@ jobs:
         run: brew install makensis dpkg
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: .
 
       - name: Extract tarball with preserved permissions
-        run: tar -xzvf ./target/target.tar.gz
+        run: tar -xzvf ./target.tar.gz
 
       - name: Packaging
         run: target/package.sh
 
       - name: Upload output - Windows Installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
           path: target/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
 
       - name: Upload output - Windows Portable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
           path: target/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
 
       - name: Upload output - Ubuntu Package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
           path: target/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
 
       - name: Upload output - MacOS Package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: APKScanner_${{ env.FILE_VERSION }}_mac.dmg
           path: target/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
@@ -295,12 +296,12 @@ jobs:
       FILE_VERSION: ${{ needs.build-var.outputs.file_version }}
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: .
 
       - name: Upload to Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             ./APKScanner_${{ env.FILE_VERSION }}_win_setup.exe/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
