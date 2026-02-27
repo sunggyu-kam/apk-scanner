@@ -288,25 +288,14 @@ jobs:
           name: APKScanner_${{ env.FILE_VERSION }}_mac.dmg
           path: target/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
 
-  upload-to-release:
-    needs: [build-var, packaging-installer]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'release'
-    env:
-      FILE_VERSION: ${{ needs.build-var.outputs.file_version }}
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v8
-        with:
-          path: .
-
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
         with:
           files: |
-            ./APKScanner_${{ env.FILE_VERSION }}_win_setup.exe/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
-            ./APKScanner_${{ env.FILE_VERSION }}_win_portable.zip/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
-            ./APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
-            ./APKScanner_${{ env.FILE_VERSION }}_mac.dmg/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
+            target/APKScanner_${{ env.FILE_VERSION }}_win_setup.exe
+            target/APKScanner_${{ env.FILE_VERSION }}_win_portable.zip
+            target/APKScanner_${{ env.FILE_VERSION }}_ubuntu_setup.deb
+            target/APKScanner_${{ env.FILE_VERSION }}_mac.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
