@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="false">
+    <include resource="logback-spectrum.xml" optional="true"/>
+
+    <!-- logging level -->
+    <logger name="com.apkscanner" level="${DEFAULT_LEVEL}" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LIST"/>
+    </logger>
+</configuration>
